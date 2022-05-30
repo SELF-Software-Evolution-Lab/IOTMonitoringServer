@@ -1,0 +1,57 @@
+<style>
+  .no-data-div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 40%;
+    max-width: 600px;
+    min-width: 300px;
+    margin: auto;
+  }
+</style>
+<div class="no-data-div">
+  <img
+    src="/static/media/emptyDB.svg"
+    alt="Icono de base de datos vacía"
+    width="40%"
+    class="m-5"
+  />
+  <span> No hay datos para visualizar </span>
+  <div class="m-4">
+    <button type="button" class="btn btn-light mr-1" onclick="reload()">
+      &#x21bb;
+    </button>
+    <button
+      type="button"
+      class="btn btn-light ml-1"
+      onclick="toggleVisibility('noDataInfoDiv')"
+    >
+      &#9432;
+    </button>
+  </div>
+  <div id="noDataInfoDiv" class="text-center">
+    <h5 class="display-">No hay registros</h5>
+    <p>
+      <small>
+        No se encontraron registros en la base de datos para visualizar en el mapa. Posiblemente no hay datos en el rango de fechas seleccionado, intenta cambiando el rango o la variable. Si tienes algún problema comunícate con algún monitor.
+      </small>
+    </p>
+  </div>
+  <script>
+    var x = document.getElementById("noDataInfoDiv");
+    x.style.display = "none";
+    function toggleVisibility(id) {
+      var x = document.getElementById(id);
+      if (x.style.display === "none") {
+        x.style.display = "block";
+      } else {
+        x.style.display = "none";
+      }
+    }
+
+    function reload() {
+      location.reload();
+    }
+  </script>
+</div>

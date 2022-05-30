@@ -1,0 +1,33 @@
+{% extends 'base_nonavbar.html' %} {% load static %} {% block content %}
+<style>
+    .width-404 {
+        max-width: 800px;
+        width: 80%;
+        min-width: 320px;
+        margin: auto;
+    }
+</style>
+<div class="vh-100 d-flex flex-column align-items-center justify-content-center width-404">
+    <img
+            src="/static/media/logoAndes.png"
+            class="my-2"
+            width="240"
+            alt="Logo Uniandes"
+          />
+    <h1 class="display-1 my-3">
+        Algo no está bien... &#129488;
+    </h1>
+    <p class="h4">
+        Los datos que enviaste no son correctos o no son suficientes.
+    </p>
+    <div class="w-100 d-flex flex-row justify-content-around m-5">
+        <button type="button" class="btn btn-light btn-lg" onclick="window.history.back();">
+            Atrás
+        </button>
+        <button type="button" class="btn btn-info btn-lg" onclick="window.location = '/';">
+            Inicio
+        </button>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,91 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+  <head>
+    <!-- jQuery -->
+    <script src="/static/lib/jquery-3.6.0.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="/static/lib/bootstrap-4.4.1-dist/css/bootstrap.min.css"
+    />
+    <script src="/static/lib/bootstrap-4.4.1-dist/js/bootstrap.min.js"></script>
+    <!-- Jquery Confirm -->
+    <link
+      rel="stylesheet"
+      href="/static/lib/jquery-confirm-v3.3.4/css/jquery-confirm.css"
+    />
+    <script src="/static/lib/jquery-confirm-v3.3.4/js/jquery-confirm.js"></script>
+    <!-- Functions -->
+    <script src="{% static 'js/functions.js' %}"></script>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="shortcut icon"
+      href="/favicon.ico"
+      type="image/vnd.microsoft.icon"
+    />
+    <title>Monitoreo IOT</title>
+    {% block head %} {% endblock %}
+  </head>
+  <body>
+    <br />
+    <nav
+      class="navbar navbar-expand-lg navbar-light"
+      style="background-color: #cbe7fd"
+    >
+      <nav class="navbar navbar-light" style="background-color: #cbe7fd">
+        <a class="navbar-brand" href="/">
+          <img
+            src="/static/media/logoAndes.png"
+            width="130"
+            height="45"
+            alt=""
+          />
+        </a>
+      </nav>
+
+      <nav class="navbar navbar-light" style="background-color: #cbe7fd">
+        <a class="navbar-brand" href="/"> Monitoreo IOT </a>
+      </nav>
+
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav w-100">
+          <li class="nav-item">
+            <a class="nav-link" href="/">Inicio</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/realtime-data">Datos en tiempo real</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/map/">Mapa histórico</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/historic/">Descarga de datos</a>
+          </li>
+          {% if user.is_superuser %}
+          <li class="nav-item">
+            <a class="nav-link" href="/users/">Usuarios</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/variables/">Variables</a>
+          </li>
+          {% endif %}
+          <li class="nav-item flex-grow-1 d-inline-block">
+            <a class="nav-link float-right d-inline" href="/logout/"
+              >Cerrar sesión</a
+            >
+            <h5 class="nav-link float-right d-inline">
+              Hola {{ user.username }},
+            </h5>
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+    <main>
+      <div class="container" style="min-height: 580px">
+        {% block content %} {% endblock %}
+      </div>
+    </main>
+  </body>
+</html>

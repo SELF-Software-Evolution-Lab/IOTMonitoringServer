@@ -1,0 +1,92 @@
+{% extends 'base_nonavbar.html' %} {% load static %} {% block content %}
+<div
+  class="
+    container-fluid
+    d-flex
+    flex-column
+    vh-100
+    w-100
+    align-items-center
+    justify-content-center
+  "
+>
+  <img
+    src="/static/media/logoAndes.png"
+    width="200"
+    alt="Logo Uniandes"
+    class="mb-5"
+  />
+  <div class="card col-lg-5 col-10 col-md-7">
+    <div class="card-body">
+      <h4 class="card-title">Inicia sesión</h4>
+      <h6 class="card-subtitle mb-2 text-muted">
+        Ingresa tu usuario uniandes y contraseña
+      </h6>
+      <form action="/login/" method="POST">
+        {% csrf_token %}
+        <div class="form-group">
+          <label for="userInput">Usuario:</label>
+          <input
+            type="text"
+            class="form-control"
+            id="userInput"
+            name="username"
+            placeholder="Ingresa el usuario"
+            aria-describedby="userHelp"
+            onchange="activateBtn()"
+            value="{{username}}"
+          />
+          <small id="userHelp" class="form-text text-muted"
+            >No incluyas el @uniandes.edu.co.</small
+          >
+        </div>
+        <div class="form-group">
+          <label for="passInput">Contraseña:</label>
+          <input
+            type="password"
+            class="form-control"
+            id="passInput"
+            name="password"
+            placeholder="Ingresa la contraseña"
+            aria-describedby="passHelp"
+            onchange="activateBtn()"
+            value="{{password}}"
+          />
+          <small id="passHelp" class="form-text text-muted"
+            >Contraseña de tu correo uniandes.</small
+          >
+        </div>
+        <button
+          type="submit"
+          class="btn btn-primary d-block m-auto"
+          id="submitBtn"
+          disabled
+        >
+          Ingresar
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+<script>
+  function activateBtn() {
+    if (
+      document.getElementById("userInput").value == "" ||
+      document.getElementById("passInput").value == ""
+    ) {
+      document.getElementById("submitBtn").disabled = true;
+    } else {
+      document.getElementById("submitBtn").disabled = false;
+    }
+  }
+  activateBtn();
+</script>
+{% if errors %}
+<script>
+  setTimeout(() => {
+    var error = "{{errors}}";
+    activateBtn();
+    alert(error);
+  }, 100);
+</script>
+{% endif %} {% endblock %}

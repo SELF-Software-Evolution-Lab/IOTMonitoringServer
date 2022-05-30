@@ -1,0 +1,62 @@
+{% extends "variables/variable_base.html" %} {% block content %}
+
+<!--Register-->
+<div class="container p-5">
+  <h1>Lista de variables</h1>
+  <div class="row mx-2">
+    <div class="col-12">
+      <a href="/variables/register/" class="btn btn-success float-right"
+        >Crear variable</a
+      >
+    </div>
+  </div>
+  <div class="row my-5 mx-2">
+    <div class="col-md-12">
+      {% for message in messages %}
+      <div class="container-fluid p-0">
+        <div class="alert {{ message.tags }} alert-dismissible" role="alert">
+          <button
+            type="button"
+            class="close"
+            data-dismiss="alert"
+            aria-label="Close"
+          >
+            <span aria-hidden="True">&times;</span>
+          </button>
+          {{ message }}
+        </div>
+      </div>
+      {% endfor %}
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Variable</th>
+            <th scope="col">Unidad</th>
+            <th scope="col">Valor mínimo</th>
+            <th scope="col">Valor máximo</th>
+            <th scope="col">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for variable in variables %}
+          <tr>
+            <th scope="row">{{ variable.id }}</th>
+            <td>{{ variable.name }}</td>
+            <td>{{ variable.unit }}</td>
+            <td>{{ variable.min_value }}</td>
+            <td>{{ variable.max_value }}</td>
+            <td>
+              <a href="/variables/{{ variable.id }}/" class="btn btn-primary"
+                >Editar</a
+              >
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  {% endblock %}
+</div>

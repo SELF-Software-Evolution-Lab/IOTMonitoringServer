@@ -1,0 +1,313 @@
+{% extends 'base.html' %} {% load static %} {% block head %}
+<script src="/static/lib/proj4.js"></script>
+<script src="/static/lib/highmaps/highmaps.js"></script>
+<script src="/static/lib/highmaps/highcharts-more.js"></script>
+<script src="/static/lib/highmaps/modules/data.js"></script>
+<script src="/static/lib/highmaps/modules/exporting.js"></script>
+<script src="/static/lib/highmaps/modules/offline-exporting.js"></script>
+<script src="/static/lib/highmaps/maps/co-all.js"></script>
+<script src="/static/lib/highmaps/maps/world.js"></script>
+{% endblock %} {% block content %}
+<br />
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="row">
+        <!-- <div class="col-md-6 col-12">
+          <button class="btn btn-secondary float-left align-self-center" onclick="downloadCSV()">Exportar CSV</button>
+        </div> -->
+        <div class="col-md-6 col-12 my-3 my-md-0">
+          <label for="calendarPicker">Selecciona un rango de fechas</label>
+          <div id="calendarPicker">
+
+          
+        <span onclick="openCalendar()">
+          {{start}}
+           - 
+          {{end}}
+        </span>
+        <button
+          type="button"
+          class="btn btn-light ml-1"
+          name="daterange"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-calendar" viewBox="0 0 16 16">
+            <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z"/>
+          </svg>
+        </button>
+      </div>
+        </div>
+        <div class="col-md-6 col-12">
+        <style>
+          select {
+            border: none;
+            color: #3498DB;
+            cursor: pointer;
+          }
+        </style>
+        <select
+              class="float-right my-3 my-md-0"
+              aria-label="Seleccionar variable"
+              aria-placeholder="Variable"
+              onchange="this.options[this.selectedIndex].value && (window.location = '/rema/' + this.options[this.selectedIndex].value);"
+            >
+              {% for measure in measurements %}
+              <option value="{{measure.name}}"
+              {% if selectedMeasure.name == measure.name %}
+                selected
+                {% endif %}>{{measure.name}}</option>
+              {% endfor %}
+            </select>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% if data %}
+  
+      <div id="container-map"></div>
+      {% else %}
+      {% include "no_map_data.html" %}  
+      {% endif %}
+      <div hidden>
+        {{data|json_script:'data'}}
+      </div>
+<script type="text/javascript" src="/static/lib/jquery-3.6.0.min.js"></script>
+<script type="text/javascript" src="/static/lib/moment.min.js"></script>
+<script type="text/javascript" src="/static/lib/daterangepicker.min.js"></script>
+<link rel="stylesheet" type="text/css" href="/static/lib/daterangepicker.css" />
+<script type="application/javascript">
+  Highcharts.setOptions({
+    lang: {
+            loading: 'Cargando...',
+            months: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'],
+            weekdays: ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'],
+            shortMonths: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
+            exportButtonTitle: "Exportar",
+            printButtonTitle: "Importar",
+            rangeSelectorFrom: "Desde",
+            rangeSelectorTo: "Hasta",
+            rangeSelectorZoom: "Período",
+            downloadPNG: 'Descargar imagen PNG',
+            downloadJPEG: 'Descargar imagen JPEG',
+            downloadPDF: 'Descargar imagen PDF',
+            downloadSVG: 'Descargar imagen SVG',
+            downloadCSV: 'Descargar archivo CSV',
+            downloadXLS: 'Descargar archivo XLS',
+            exitFullscreen: 'Salir de pantalla completa',
+            noData: 'No hay datos',
+            viewData: 'Ver tabla de datos',
+            viewFullscreen: 'Ver en pantalla completa',
+            printChart: 'Imprimir',
+            resetZoom: 'Reiniciar zoom',
+            resetZoomTitle: 'Reiniciar zoom',
+            thousandsSep: ",",
+            decimalPoint: '.'
+        }        
+});
+
+  function openCalendar() {
+    $('button[name="daterange"]').click();  
+  }
+
+  function getColor(v, min, max) {
+    console.log('VMINMAX', v, min, max);
+    function getC(f, l, r) {
+        return {
+            r: Math.floor((1 - f) * l.r + f * r.r),
+            g: Math.floor((1 - f) * l.g + f * r.g),
+            b: Math.floor((1 - f) * l.b + f * r.b),
+        };
+    }
+
+    let left = { r: 0, g: 0, b: 255 },
+        middle = { r: 109, g: 165, b: 255 },
+        right = { r: 255, g: 0, b: 0 },
+        mid = (max - min) / 2;
+
+    let r = 0, g = 0, b = 0;
+
+    if (v < min + mid) {
+      let values = getC((v - min) / mid, left, middle);
+      r = values.r;
+      g = values.g;
+      b = values.b;
+    } else {
+      let values = getC((v - min - mid) / mid, middle, right);
+      r = values.r;
+      g = values.g;
+      b = values.b;
+    }
+    return `rgba(${r}, ${g}, ${b}, 0.4)`;
+  }
+
+  $(function() {
+    $('button[name="daterange"]').daterangepicker({
+      opens: 'right'
+    }, function(start, end, label) {
+          let startTime = +start;
+          let endTime = +end;
+          let location = window.location.toString();
+          if (location.includes('?')) {
+            window.location = location.substring(0, location.indexOf('?')) + `?from=${startTime}&to=${endTime}`;
+          } else {
+            window.location += `?from=${startTime}&to=${endTime}`;
+          }
+        });
+      });
+        var data = JSON.parse(document.getElementById('data').textContent);
+        let maxStat = data.reduce((accumulator, current) => Math.max(accumulator, current.avg), -1000);
+        let minStat = data.reduce((accumulator, current) => Math.min(accumulator, current.avg), 1000);
+        
+        var H = Highcharts.mapChart('container-map', {
+
+chart: {
+    map: 'custom/world',
+    events: {
+      load: function () {
+        var serie = this.series[0];
+        var ubicaciones = this.series[1];
+        console.log("DATA:", data);
+        data.forEach(function (d) {
+          d.z = parseFloat(d.population);
+          d.lat = parseFloat(d.lat);
+          d.lon = parseFloat(d.lng);
+          if (minStat == maxStat) {
+            minStat = parseFloat(d.min);
+            maxStat = parseFloat(d.max);
+          }
+          // d.color = getColor(parseFloat(d.avg), minStat, maxStat),
+          var color = serie.chart.colorAxis[0].toColor(d.avg);
+          d.color = color;
+          d.value = d.avg;
+          ubicaciones.addPoint(d);
+          serie.addPoint(d);
+        });
+        this.isDirtyLegend = true;
+        this.redraw();
+      }
+    }
+},
+
+legend: {
+        enabled: true,
+        y: -40,
+        bubbleLegend: {
+            enabled: true,
+            zIndex: 5,
+        }
+    },
+
+title: {
+    text: 'Datos por ciudad'
+},
+
+mapNavigation: {
+    enabled: true
+},
+
+tooltip: {
+    headerFormat: '<strong>{point.key}</strong><br/>',
+    pointFormat: 'Lat: {point.lat}, Lon: {point.lng}<br/> Mín: {point.min}<br/> Máx: {point.max}<br/> Avg: {point.avg}<br/>  Estaciones: {point.population}'
+},
+
+colorAxis: {
+        {% if selectedMeasure.name == 'temperatura' %}
+        min: 10,
+        max: 30,
+        {% else %}
+        min: 40,
+        max: 80,
+        {% endif %}
+        stops: [
+          [0, '#3060cf'],
+          [0.7, '#fffbbc'],
+          [0.9, '#c4463a'],
+        ],
+        labels: {
+            format: '{value}{{selectedMeasure.unit}}'
+        },
+        marker: null,
+        visible: true,
+    },
+series: [{
+    // Use the gb-all map with no data as a basemap
+    name: 'Basemap',
+    borderColor: '#A0A0A0',
+    nullColor: 'rgba(200, 200, 200, 0.3)',
+    showInLegend: false
+}, {
+    // Specify points using lat/lon
+    type: 'mapbubble',
+    name: 'Ciudades',
+    minSize: '2%',
+    maxSize: '16%',
+    color: Highcharts.getOptions().colors[0],
+    dataLabels: {
+      enabled: true,
+      crop: true,
+      formatter: function () {
+        return '<span>' + this.key + '</span><br/><span>' + this.point.avg + '</span>';
+      }
+    },
+    showInLegend: false,
+    }
+  ]}
+  );
+</script>
+
+<script>
+
+  function getDateFormatted(ts) {
+    if (ts) {
+      let date = new Date(ts);
+      let year = date.getFullYear();
+      let month = ('0' + (date.getMonth() + 1)).slice(-2);
+      let day = ('0' + date.getDate()).slice(-2);
+      let hour = ('0' + date.getHours()).slice(-2);
+      let minute = ('0' + date.getMinutes()).slice(-2);
+      let seconds = ('0' + date.getSeconds()).slice(-2);
+      return `${year}-${month}-${day} ${hour}:${minute}:${seconds}`
+    }
+
+  }
+
+  function downloadCSV() {
+    for (const measure in data) {
+      const rows = [
+    ["Usuario", "Ciudad", "Fecha", "Variable", "Medición"],
+  ];
+      if (Object.hasOwnProperty.call(data, measure)) {
+        const element = data[measure];
+        for (const medida of element.data) {
+          rows.push(
+            [
+              "{{selectedUser.login}}",
+              "{{selectedCity.name}}",
+              getDateFormatted(medida[0]),
+              measure,
+              medida[1]
+            ]
+          );
+        }
+      }
+      let csvContent = "data:text/csv;charset=utf-8," 
+    + rows.map(e => e.join(",")).join("\n");
+    var encodedUri = encodeURI(csvContent);
+var link = document.createElement("a");
+link.setAttribute("href", encodedUri);
+link.setAttribute("download", measure+"-data.csv");
+document.body.appendChild(link); // Required for FF
+
+link.click();
+link.remove();
+    }
+  }
+</script>
+    </div>
+{% if data == 0 %}
+      {% include "no_data.html" %}  
+{% endif %}
+  </div>
+</div>
+
+{% endblock %}

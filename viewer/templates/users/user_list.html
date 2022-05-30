@@ -1,0 +1,68 @@
+{% extends "users/user_base.html" %} {% block content %}
+
+<!--Register-->
+<div class="container p-5">
+  <h1>Lista de usuarios</h1>
+  <div class="row mx-2">
+    <div class="col-12">
+      <a href="/users/register/" class="btn btn-success float-right"
+        >Crear usuario</a
+      >
+    </div>
+  </div>
+  <div class="row my-5 mx-2">
+    <div class="col-md-12">
+      {% for message in messages %}
+      <div class="container-fluid p-0">
+        <div class="alert {{ message.tags }} alert-dismissible" role="alert">
+          <button
+            type="button"
+            class="close"
+            data-dismiss="alert"
+            aria-label="Close"
+          >
+            <span aria-hidden="True">&times;</span>
+          </button>
+          {{ message }}
+        </div>
+      </div>
+      {% endfor %}
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Usuario</th>
+            <th scope="col">Correo</th>
+            <th scope="col">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for user in users %}
+          <tr>
+            <th scope="row">{{ user.id }}</th>
+            <td>{{ user.username }}</td>
+            <td>{{ user.email }}</td>
+            <td>
+              <a
+                href="#"
+                class="btn btn-danger"
+                onclick="deleteUser('{{ user.username }}'); return false;"
+                >Eliminar</a
+              >
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <script>
+    function deleteUser(username) {
+      if (confirm("¿Está seguro de eliminar el usuario " + username + "?")) {
+        window.location.href = "/users/delete/" + username;
+      }
+    }
+  </script>
+
+  {% endblock %}
+</div>

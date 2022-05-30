@@ -1,0 +1,15 @@
+{% extends 'base.html' %} {% load static %} {% block content %}
+<div class="m-5 p-5">
+  <h1 class="text-center">
+    Bienvenid@ {{user.username}} al sistema de monitoreo IOT
+  </h1>
+  <p class="mx-5 px-5 mt-5 pt-5">
+      En esta plataforma web podrá visualizar los datos que se obtienen de los sensores de lsa estaciones IOT. En específico podrá:
+      <ul class="mx-5 px-5">
+          <li>Ver en tiempo real las mediciones de su estación.</li>
+          <li>Observar en el mapa global el promedio de las mediciones de otras estaciones.</li>
+          <li>Descargar los datos medidos en un archivo CSV.</li>
+      </ul>
+  </p>
+</div>
+{% endblock %}

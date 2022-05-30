@@ -1,0 +1,37 @@
+{% load static %}
+<!DOCTYPE html>
+<html style="min-height: 100%">
+  <head>
+    <!-- jQuery -->
+    <script src="/static/lib/jquery-3.6.0.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="/static/lib/bootstrap-4.4.1-dist/css/bootstrap.min.css"
+    />
+    <script src="/static/lib/bootstrap-4.4.1-dist/js/bootstrap.min.js"></script>
+    <!-- Jquery Confirm -->
+    <link
+      rel="stylesheet"
+      href="/static/lib/jquery-confirm-v3.3.4/dist/jquery-confirm.min.css"
+    />
+    <script src="/static/lib/jquery-confirm-v3.3.4/dist/jquery-confirm.min.js"></script>
+    <!-- Functions -->
+    <script src="{% static 'js/functions.js' %}"></script>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="shortcut icon"
+      href="/favicon.ico"
+      type="image/vnd.microsoft.icon"
+    />
+    <title>Monitoreo IOT</title>
+    {% block head %} {% endblock %}
+  </head>
+  <body style="min-height: 100vh">
+    <main style="min-height: 100vh">
+      <div class="container" style="min-height: 100vh">
+        {% block content %} {% endblock %}
+      </div>
+    </main>
+  </body>
+</html>

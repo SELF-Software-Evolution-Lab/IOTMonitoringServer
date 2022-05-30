@@ -1,0 +1,420 @@
+{% extends 'base.html' %} {% load static %} {% block head %}
+<script src="/static/lib/highcharts-9.1.2/highcharts.js"></script>
+<script src="/static/lib/highcharts-9.1.2/modules/data.js"></script>
+<script src="/static/lib/highcharts-9.1.2/modules/exporting.js"></script>
+<script src="/static/lib/highcharts-9.1.2/modules/export-data.js"></script>
+<script src="/static/lib/highcharts-9.1.2/modules/accessibility.js"></script>
+{% endblock %} {% block content %}
+<br />
+{% if user.is_authenticated %}
+<h1 class="h3 text-center">Datos en tiempo real</h1>
+{% if selectedCity and selectedState and selectedCountry %}
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-lg-12">
+      {% for measure in measurements %}
+      <style>
+        .graph-container {
+          position: relative;
+        }
+        .graph-blocker {
+          position: absolute;
+          width: 100%;
+          height: 100%;
+          z-index: 1000;
+          background-color: #00000066;
+          color: white;
+          font-size: 140%;
+          font-weight: bold;
+          display: none;
+          align-items: center;
+          justify-content: center;
+          text-align: center;
+        }
+        .dot-elastic {
+          position: relative;
+          width: 10px;
+          height: 10px;
+          border-radius: 5px;
+          background-color: white;
+          color: white;
+          animation: dotElastic 1s infinite linear;
+        }
+
+        .dot-elastic::before, .dot-elastic::after {
+          content: '';
+          display: inline-block;
+          position: absolute;
+          top: 0;
+        }
+
+        .dot-elastic::before {
+          left: -15px;
+          width: 10px;
+          height: 10px;
+          border-radius: 5px;
+          background-color: white;
+          color: white;
+          animation: dotElasticBefore 1s infinite linear;
+        }
+
+        .dot-elastic::after {
+          left: 15px;
+          width: 10px;
+          height: 10px;
+          border-radius: 5px;
+          background-color: white;
+          color: white;
+          animation: dotElasticAfter 1s infinite linear;
+        }
+
+        @keyframes dotElasticBefore {
+          0% {
+            transform: scale(1,1);
+          }
+          25% {
+            transform: scale(1,1.5);
+          }
+          50% {
+            transform: scale(1,0.67);
+          }
+          75% {
+            transform: scale(1,1);
+          }
+          100% {
+            transform: scale(1,1);
+          }
+        }
+
+        @keyframes dotElastic {
+          0% {
+            transform: scale(1,1);
+          }
+          25% {
+            transform: scale(1,1);
+          }
+          50% {
+            transform: scale(1,1.5);
+          }
+          75% {
+            transform: scale(1,1);
+          }
+          100% {
+            transform: scale(1,1);
+          }
+        }
+
+        @keyframes dotElasticAfter {
+          0% {
+            transform: scale(1,1);
+          }
+          25% {
+            transform: scale(1,1);
+          }
+          50% {
+            transform: scale(1, 0.67);
+          }
+          75% {
+            transform: scale(1,1.5);
+          }
+          100% {
+            transform: scale(1,1);
+          }
+        }
+
+        .connection-indicator {
+          position: absolute;
+          margin: 24px;
+          width: 12px;
+          height: 12px;
+          z-index: 1050;
+          background-color: red;
+          border-radius: 8px;
+          animation: blinker 2s linear infinite;
+        }
+        @keyframes blinker {
+          50% {
+            opacity: 0;
+          }
+        }
+      </style>
+      <div class="graph-container">
+        <div class="graph-blocker" id="blocker-{{measure.name}}">
+          Esperando datos 
+          <div class="mx-4 dot-elastic">
+
+          </div>
+        </div>
+        <div id="container-realtime-{{measure.name}}"></div>
+      </div>
+      {% if data %}
+      <style>
+        .stat-card {
+          border-radius: 12px;
+          width: 80%;
+          margin: auto;
+          padding: 8px;
+          margin-top: 12px;
+          margin-bottom: 12px;
+          text-align: center;
+          -webkit-box-shadow: 2px 8px 17px -3px rgba(0,0,0,0.43); 
+          box-shadow: 2px 8px 17px -3px rgba(0,0,0,0.43);
+        }
+        .stat-card label {
+          font-size: 130%;
+          font-weight: bold;
+          display: block;
+          text-align: center;
+          color: #3498DB;
+          margin: 0;
+        }
+        .stat-card span {
+          width: fit-content;
+          display: block;
+          text-align: center;
+          margin: auto;
+          font-size: 220%;
+          color: #555;
+        }
+      </style>
+      <div class="row my-5">
+        <div class="col">
+          <div class="stat-card">
+            <label for="avg">Promedio</label>
+            {% with name=measure.name %}  
+            {% with key=name|add_str:',avg' %}  
+            <span id="avg-{{measure.name}}" class="stat">{{data|get_statistic:key}}</span>
+            {% endwith %} 
+            {% endwith %}
+          </div>
+        </div>
+        <div class="col">
+          <div class="stat-card">
+            <label for="min">Mínimo</label>
+            {% with name=measure.name %}  
+            {% with key=name|add_str:',min' %}  
+            <span id="min-{{measure.name}}" class="stat">{{data|get_statistic:key}}</span>
+            {% endwith %} 
+            {% endwith %}
+          </div>
+        </div>
+        <div class="col">
+          <div class="stat-card">
+            <label for="max">Máximo</label>
+            {% with name=measure.name %}  
+            {% with key=name|add_str:',max' %}  
+            <span id="max-{{measure.name}}" class="stat">{{data|get_statistic:key}}</span>
+            {% endwith %} 
+            {% endwith %}
+          </div>
+        </div>
+      </div>
+      {% endif %}
+      {% endfor %}
+      <br />
+      <div class="form-row">
+        {% if selectedUser %}
+        <div class="col">
+          <div class="form-group">
+            <label for="ciudad">Ciudad:</label>
+            <select
+              class="form-control"
+              aria-label="Seleccionar ciudad"
+              aria-placeholder="Ciudad"
+              onchange="this.options[this.selectedIndex].value && (window.location = '/historical/' + this.options[this.selectedIndex].value);"
+            >
+              <option value="">Todas</option>
+              {% for location in locations %}
+              <option value="{{location.country.name}}/{{location.state.name}}/{{location.city.name}}"
+              {% if selectedLocation.lat == location.lat and selectedLocation.lng == location.lng %}
+                selected
+                {% endif %}>{{location.city.name}}, {{location.state.name}}, {{location.country.name}}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+<div>
+  {{data|json_script:'data'}}
+</div>
+<script type="text/javascript" src="/static/lib/jquery-3.6.0.min.js"></script>
+<script type="text/javascript" src="/static/lib/moment.min.js"></script>
+<script type="text/javascript" src="/static/lib/daterangepicker.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.1/dist/js.cookie.min.js"></script>
+<link rel="stylesheet" type="text/css" href="/static/lib/daterangepicker.css" />
+<script type="module">
+        Highcharts.setOptions({
+          global: {
+            useUTC: false
+          },
+    lang: {
+            loading: 'Cargando...',
+            months: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'],
+            weekdays: ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'],
+            shortMonths: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
+            exportButtonTitle: "Exportar",
+            printButtonTitle: "Importar",
+            rangeSelectorFrom: "Desde",
+            rangeSelectorTo: "Hasta",
+            rangeSelectorZoom: "Período",
+            downloadPNG: 'Descargar imagen PNG',
+            downloadJPEG: 'Descargar imagen JPEG',
+            downloadPDF: 'Descargar imagen PDF',
+            downloadSVG: 'Descargar imagen SVG',
+            downloadCSV: 'Descargar archivo CSV',
+            downloadXLS: 'Descargar archivo XLS',
+            exitFullscreen: 'Salir de pantalla completa',
+            noData: 'No hay datos',
+            viewData: 'Ver tabla de datos',
+            viewFullscreen: 'Ver en pantalla completa',
+            printChart: 'Imprimir',
+            resetZoom: 'Reiniciar zoom',
+            resetZoomTitle: 'Reiniciar zoom',
+            thousandsSep: ",",
+            decimalPoint: '.'
+        }        
+});
+        var data = JSON.parse(document.getElementById('data').textContent);
+        var charts = {};
+        Object.keys(data).forEach(function(key) {
+         charts[key] = Highcharts.chart("container-realtime-"+key, {
+        chart: {
+          zoomType: "x",
+        },
+        title: {
+          text: key,
+        },
+        subtitle: {
+          text:
+            document.ontouchstart === undefined
+              ? "Selecciona una area para hacer zoom"  
+              : "Para hacer zoom, amplía la pantalla con los dedos",
+        },
+        xAxis: {
+          type: "datetime",
+        },
+        yAxis: {
+          title: {
+            text: "Valor",
+          },
+        },
+        legend: {
+          enabled: false,
+        },
+        plotOptions: {
+          area: {
+            fillColor: {
+              linearGradient: {
+                x1: 0,
+                y1: 0,
+                x2: 0,
+                y2: 1,
+              },
+              stops: [
+                [0, Highcharts.getOptions().colors[0]],
+                [
+                  1,
+                  Highcharts.color(Highcharts.getOptions().colors[0])
+                    .setOpacity(0)
+                    .get("rgba"),
+                ],
+              ],
+            },
+            marker: {
+              radius: 2,
+            },
+            lineWidth: 1,
+            states: {
+              hover: {
+                lineWidth: 1,
+              },
+            },
+            threshold: null,
+          },
+        },
+
+        series: [
+          {
+            type: "line",
+            name: "Valor",
+            data: data[key].data,
+          },
+        ],
+      });
+        });
+    let qtySamePeriods = 0;
+
+    setInterval(async () => {
+      var newData = {
+        city: "{{selectedCity.name}}",
+        state: "{{selectedState.name}}",
+        country: "{{selectedCountry.name}}",
+        action: "get_data"
+      }
+      var url = '/realtime-data/';
+      let csrftoken = Cookies.get('csrftoken');
+      const headers = new Headers({
+        'Cookie': "csrftoken="+csrftoken + "; " + "sessionid="+Cookies.get('sessionid'),
+    });
+      let res = await fetch(url, {
+        method: "POST", 
+        body: JSON.stringify(newData),
+        });
+      var newData = await res.json();
+      if (newData.result) {
+        for (const key in newData.result) {
+          if (Object.hasOwnProperty.call(newData.result, key)) {
+            const element = newData.result[key];
+            console.log("Element: ", element);
+            if (element.data.length < 1) {
+              qtySamePeriods++;
+            }
+            else if (element.data[element.data.length-1][0] == data[key].data[data[key].data.length-1][0]) {
+              qtySamePeriods++;
+            } else {
+              qtySamePeriods = 0;
+            }
+            data = newData.result;
+            let blockerElement = document.getElementById('blocker-' + key);
+            let stats = document.getElementsByClassName('stat');
+            if (qtySamePeriods > 2) {
+              blockerElement.style.display = 'flex';
+              [].forEach.call(stats, stat => {
+                stat.innerHTML = "-";
+              });
+            } else {
+              blockerElement.style.display = 'none';
+              let minElement = document.getElementById('min-' + key);
+              minElement.innerText = element.min;
+              let maxElement = document.getElementById('max-' + key);
+              maxElement.innerText = element.max;
+              let avgElement = document.getElementById('avg-' + key);
+              avgElement.innerText = element.avg;
+            }
+;            charts[key].update({
+              series: [
+          {
+            type: "line",
+            name: "Valor",
+            data: element.data,
+          },
+        ],
+            });
+          }
+        }
+      }
+    }, 3000);
+</script>
+{% else %}
+      {% include "no_data.html" %}  
+{% endif %}
+
+{% else %}
+<p>You are not logged in</p>
+<a href="{% url 'login' %}">Log In</a>
+{% endif %}
+{% endblock %}
