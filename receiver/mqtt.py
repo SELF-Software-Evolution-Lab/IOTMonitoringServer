@@ -30,10 +30,11 @@ def on_message(client: mqtt.Client, userdata, message: mqtt.MQTTMessage):
         payloadJson = json.loads(payload)
         country, state, city, user = utils.get_topic_data(
             message.topic)
-
+        print("country: " + country, "state: " + state, "city: " + city, "user: " + user)
         user_obj = utils.get_user(user)
+        print("user_obj: " + str(user_obj))
         location_obj = utils.get_or_create_location(city, state, country)
-
+        print("location_obj: " + str(location_obj))
         for measure in payloadJson:
             variable = measure
             unit = utils.get_units(str(variable).lower())

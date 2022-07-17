@@ -4,6 +4,7 @@ from typing import Tuple
 from django.contrib.auth.models import User
 import requests
 from receiver.models import Location, Station, Measurement, Data, City, State, Country
+from django.core.exceptions import MultipleObjectsReturned
 
 UNITS = {
     "temperatura": "°C",
@@ -94,7 +95,7 @@ def get_or_create_station(user, location):
     '''
     station, created = Station.objects.get_or_create(
         user=user, location=location)
-    return(station)
+    return (station)
 
 
 def get_or_create_measurement(name, unit):
@@ -107,10 +108,10 @@ def get_or_create_measurement(name, unit):
 
 
 def create_data(
-    value: float,
-    station: Station,
-    measure: Measurement,
-    time: datetime = datetime.now(),
+        value: float,
+        station: Station,
+        measure: Measurement,
+        time: datetime = datetime.now(),
 ):
     '''
     Crea un nuevo dato con valor {value}, estación {station} y variable {measure}.
@@ -124,11 +125,16 @@ def create_data(
     print("Time:", time)
     secs = int(time.timestamp() % 3600)
 
-    data, created = Data.objects.get_or_create(
-        base_time=base_time, station=station, measurement=measure, defaults={
-            "time": ts,
-        }
-    )
+    try:
+        data, created = Data.objects.get_or_create(
+            base_time=base_time, station=station, measurement=measure, defaults={
+                "time": ts,
+            }
+        )
+    except MultipleObjectsReturned:
+        data = Data.objects.filter(
+            base_time=base_time, station=station, measurement=measure).last()
+        created = False
 
     if created:
         values = []
