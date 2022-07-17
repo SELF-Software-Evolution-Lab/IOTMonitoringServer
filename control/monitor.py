@@ -58,6 +58,8 @@ def analyze_data():
     print(len(aggregation), "dispositivos revisados")
     print(alerts, "alertas enviadas")
 
+def analyze_variation():
+    pass
 
 def on_connect(client, userdata, flags, rc):
     '''
@@ -106,6 +108,7 @@ def start_cron():
     '''
     print("Iniciando cron...")
     schedule.every(5).minutes.do(analyze_data)
+    schedule.every(10).minutes.do(analyze_variation)
     print("Servicio de control iniciado")
     while 1:
         schedule.run_pending()
