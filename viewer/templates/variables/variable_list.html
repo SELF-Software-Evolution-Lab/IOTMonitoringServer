@@ -5,9 +5,7 @@
   <h1>Lista de variables</h1>
   <div class="row mx-2">
     <div class="col-12">
-      <a href="/variables/register/" class="btn btn-success float-right"
-        >Crear variable</a
-      >
+      <a href="/variables/register/" class="btn btn-success float-right">Crear variable</a>
     </div>
   </div>
   <div class="row my-5 mx-2">
@@ -15,12 +13,7 @@
       {% for message in messages %}
       <div class="container-fluid p-0">
         <div class="alert {{ message.tags }} alert-dismissible" role="alert">
-          <button
-            type="button"
-            class="close"
-            data-dismiss="alert"
-            aria-label="Close"
-          >
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
             <span aria-hidden="True">&times;</span>
           </button>
           {{ message }}
@@ -35,6 +28,7 @@
             <th scope="col">Unidad</th>
             <th scope="col">Valor mínimo</th>
             <th scope="col">Valor máximo</th>
+            <th scope="col">Valor promedio</th>
             <th scope="col">Acciones</th>
           </tr>
         </thead>
@@ -46,10 +40,9 @@
             <td>{{ variable.unit }}</td>
             <td>{{ variable.min_value }}</td>
             <td>{{ variable.max_value }}</td>
+            <td>{{ variable.avg_value }}</td>
             <td>
-              <a href="/variables/{{ variable.id }}/" class="btn btn-primary"
-                >Editar</a
-              >
+              <a href="/variables/{{ variable.id }}/" class="btn btn-primary">Editar</a>
             </td>
           </tr>
           {% endfor %}

@@ -55,6 +55,7 @@ class Measurement(models.Model):
     unit = models.CharField(max_length=50, blank=False)
     max_value = models.FloatField(null=True, blank=True, default=None)
     min_value = models.FloatField(null=True, blank=True, default=None)
+    avg_value = models.FloatField(null=True, blank=True, default=None)
     active = active = models.BooleanField(default=True)
 
     def str(self):
