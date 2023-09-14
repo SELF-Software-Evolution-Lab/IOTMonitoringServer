@@ -42,7 +42,8 @@ INSTALLED_APPS = [
     'crispy_forms',
     'control',
     'receiver',
-    'viewer'
+    'viewer',
+    'crispy_bootstrap4'
 ]
 
 MIDDLEWARE = [
