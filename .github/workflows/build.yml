@@ -25,7 +25,7 @@ jobs:
         id: pruebas
         run: |
           pytest
-          exit 1
+          exit 5
           continueOnError: true
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
