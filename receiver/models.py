@@ -15,6 +15,12 @@ class City(models.Model):
     def str(self):
         return "{}".format(self.name)
 
+class City2(models.Model):
+    name = models.CharField(max_length=50, unique=True, blank=False)
+    code = models.CharField(max_length=50, null=True)
+
+    def str(self):
+        return "{}".format(self.name)
 
 class State(models.Model):
     name = models.CharField(max_length=50, unique=False, blank=False)
