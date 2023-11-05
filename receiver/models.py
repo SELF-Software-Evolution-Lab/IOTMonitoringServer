@@ -56,7 +56,18 @@ class Location(models.Model):
     country = models.ForeignKey(Country, on_delete=models.CASCADE)
     active = models.BooleanField(default=True)
 
-class Location(models.Model):
+class Location2(models.Model):
+    description = models.CharField(max_length=200, blank=True)
+    lat = models.DecimalField(
+        max_digits=9, decimal_places=6, null=True, blank=True)
+    lng = models.DecimalField(
+        max_digits=9, decimal_places=6, null=True, blank=True)
+    city = models.ForeignKey(City, on_delete=models.CASCADE)
+    state = models.ForeignKey(State, on_delete=models.CASCADE)
+    country = models.ForeignKey(Country, on_delete=models.CASCADE)
+    active = models.BooleanField(default=True)
+
+class Location3(models.Model):
     description = models.CharField(max_length=200, blank=True)
     lat = models.DecimalField(
         max_digits=9, decimal_places=6, null=True, blank=True)
