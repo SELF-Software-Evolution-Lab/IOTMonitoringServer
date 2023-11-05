@@ -121,6 +121,7 @@ class Location7(models.Model):
     state = models.ForeignKey(State, on_delete=models.CASCADE)
     country = models.ForeignKey(Country, on_delete=models.CASCADE)
     active = models.BooleanField(default=True)
+    
 
 
     class Meta:
