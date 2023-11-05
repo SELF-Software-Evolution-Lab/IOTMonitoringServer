@@ -20,11 +20,10 @@ jobs:
       - name: Instalación de librerías y dependencias
         run: |
           python -m pip install --upgrade pip
+          pip install -r requirements.txt
       - name: pruebas+coverage
         id: pruebas
-        run: | 
-          python run -m unittest discover tests 
-          python -m coverage xml -i 
+        run: pytest
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
         env:
