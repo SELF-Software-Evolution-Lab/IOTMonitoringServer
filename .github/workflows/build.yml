@@ -22,11 +22,10 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install pytest
       - name: pruebas+coverage
-        id: pruebas
         run: |
           pytest
           exit 5
-          continueOnError: true
+        continue-on-error: true
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
         env:
