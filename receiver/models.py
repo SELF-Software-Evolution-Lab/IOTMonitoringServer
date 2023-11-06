@@ -7,7 +7,6 @@ from django.contrib.postgres.fields import ArrayField
 from typing import Any, MutableMapping, Optional
 import psycopg2
 
-
 class City(models.Model):
     name = models.CharField(max_length=50, unique=True, blank=False)
     code = models.CharField(max_length=50, blank=True)
@@ -113,7 +112,7 @@ class Data(models.Model):
     def timestamp_now():
         now = timezone.now()
         return int(now.timestamp() * 1000000)
-
+    
     time = models.BigIntegerField(default=timestamp_now, primary_key=True)
     base_time = models.DateTimeField(default=base_time_now)
     station = models.ForeignKey(Station, on_delete=models.CASCADE)
