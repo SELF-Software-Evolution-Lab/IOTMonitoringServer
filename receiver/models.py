@@ -22,15 +22,12 @@ class State(models.Model):
     def str(self):
         return "{}".format(self.name)
 
-
 class Country(models.Model):
     name = models.CharField(max_length=50, unique=False, blank=False)
     code = models.CharField(max_length=50, blank=True)
 
     def str(self):
         return "{}".format(self.name)
-
-
 class Location(models.Model):
     description = models.CharField(max_length=200, blank=True)
     lat = models.DecimalField(
@@ -41,79 +38,11 @@ class Location(models.Model):
     state = models.ForeignKey(State, on_delete=models.CASCADE)
     country = models.ForeignKey(Country, on_delete=models.CASCADE)
     active = models.BooleanField(default=True)
-
-class Location2(models.Model):
-    description = models.CharField(max_length=200, blank=True)
-    lat = models.DecimalField(
-        max_digits=9, decimal_places=6, null=True, blank=True)
-    lng = models.DecimalField(
-        max_digits=9, decimal_places=6, null=True, blank=True)
-    city = models.ForeignKey(City, on_delete=models.CASCADE)
-    state = models.ForeignKey(State, on_delete=models.CASCADE)
-    country = models.ForeignKey(Country, on_delete=models.CASCADE)
-    active = models.BooleanField(default=True)
-
-class Location3(models.Model):
-    description = models.CharField(max_length=200, blank=True)
-    lat = models.DecimalField(
-        max_digits=9, decimal_places=6, null=True, blank=True)
-    lng = models.DecimalField(
-        max_digits=9, decimal_places=6, null=True, blank=True)
-    city = models.ForeignKey(City, on_delete=models.CASCADE)
-    state = models.ForeignKey(State, on_delete=models.CASCADE)
-    country = models.ForeignKey(Country, on_delete=models.CASCADE)
-    active = models.BooleanField(default=True)
-
-class Location4(models.Model):
-    description = models.CharField(max_length=200, blank=True)
-    lat = models.DecimalField(
-        max_digits=9, decimal_places=6, null=True, blank=True)
-    lng = models.DecimalField(
-        max_digits=9, decimal_places=6, null=True, blank=True)
-    city = models.ForeignKey(City, on_delete=models.CASCADE)
-    state = models.ForeignKey(State, on_delete=models.CASCADE)
-    country = models.ForeignKey(Country, on_delete=models.CASCADE)
-    active = models.BooleanField(default=True)
-
-class Location5(models.Model):
-    description = models.CharField(max_length=200, blank=True)
-    lat = models.DecimalField(
-        max_digits=9, decimal_places=6, null=True, blank=True)
-    lng = models.DecimalField(
-        max_digits=9, decimal_places=6, null=True, blank=True)
-    city = models.ForeignKey(City, on_delete=models.CASCADE)
-    state = models.ForeignKey(State, on_delete=models.CASCADE)
-    country = models.ForeignKey(Country, on_delete=models.CASCADE)
-    active = models.BooleanField(default=True)
-
-class Location6(models.Model):
-    description = models.CharField(max_length=200, blank=True)
-    lat = models.DecimalField(
-        max_digits=9, decimal_places=6, null=True, blank=True)
-    lng = models.DecimalField(
-        max_digits=9, decimal_places=6, null=True, blank=True)
-    city = models.ForeignKey(City, on_delete=models.CASCADE)
-    state = models.ForeignKey(State, on_delete=models.CASCADE)
-    country = models.ForeignKey(Country, on_delete=models.CASCADE)
-    active = models.BooleanField(default=True)
-
-class Location7(models.Model):
-    description = models.CharField(max_length=200, blank=True)
-    lat = models.DecimalField(
-        max_digits=9, decimal_places=6, null=True, blank=True)
-    lng = models.DecimalField(
-        max_digits=9, decimal_places=6, null=True, blank=True)
-    city = models.ForeignKey(City, on_delete=models.CASCADE)
-    state = models.ForeignKey(State, on_delete=models.CASCADE)
-    country = models.ForeignKey(Country, on_delete=models.CASCADE)
-    active = models.BooleanField(default=True)
-
     class Meta:
         unique_together = ("city", "state", "country")
 
     def str(self):
         return "{} {} {}".format(self.city.name, self.state.name, self.country.name)
-
 
 class Measurement(models.Model):
     name = models.CharField(max_length=50, blank=False)
