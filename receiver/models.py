@@ -10,28 +10,14 @@ import psycopg2
 
 class City(models.Model):
     name = models.CharField(max_length=50, unique=True, blank=False)
-    code = models.CharField(max_length=50, null=True)
-
-    def str(self):
-        return "{}".format(self.name)
-    
-class City2(models.Model):
-    name = models.CharField(max_length=50, unique=True, blank=False)
-    code = models.CharField(max_length=50, null=True)
-
-    def str(self):
-        return "{}".format(self.name)
-
-class City2(models.Model):
-    name = models.CharField(max_length=50, unique=True, blank=False)
-    code = models.CharField(max_length=50, null=True)
+    code = models.CharField(max_length=50, blank=True)
 
     def str(self):
         return "{}".format(self.name)
 
 class State(models.Model):
     name = models.CharField(max_length=50, unique=False, blank=False)
-    code = models.CharField(max_length=50, null=True)
+    code = models.CharField(max_length=50, blank=True)
 
     def str(self):
         return "{}".format(self.name)
@@ -39,7 +25,7 @@ class State(models.Model):
 
 class Country(models.Model):
     name = models.CharField(max_length=50, unique=False, blank=False)
-    code = models.CharField(max_length=50, null=True)
+    code = models.CharField(max_length=50, blank=True)
 
     def str(self):
         return "{}".format(self.name)
@@ -121,41 +107,6 @@ class Location7(models.Model):
     state = models.ForeignKey(State, on_delete=models.CASCADE)
     country = models.ForeignKey(Country, on_delete=models.CASCADE)
     active = models.BooleanField(default=True)
-
-class Location10(models.Model):
-    description = models.CharField(max_length=200, blank=True)
-    lat = models.DecimalField(
-        max_digits=9, decimal_places=6, null=True, blank=True)
-    lng = models.DecimalField(
-        max_digits=9, decimal_places=6, null=True, blank=True)
-    city = models.ForeignKey(City, on_delete=models.CASCADE)
-    state = models.ForeignKey(State, on_delete=models.CASCADE)
-    country = models.ForeignKey(Country, on_delete=models.CASCADE)
-    active = models.BooleanField(default=True)
-
-class Location11(models.Model):
-    description = models.CharField(max_length=200, blank=True)
-    lat = models.DecimalField(
-        max_digits=9, decimal_places=6, null=True, blank=True)
-    lng = models.DecimalField(
-        max_digits=9, decimal_places=6, null=True, blank=True)
-    city = models.ForeignKey(City, on_delete=models.CASCADE)
-    state = models.ForeignKey(State, on_delete=models.CASCADE)
-    country = models.ForeignKey(Country, on_delete=models.CASCADE)
-    active = models.BooleanField(default=True)
-
-class Location12(models.Model):
-    description = models.CharField(max_length=200, blank=True)
-    lat = models.DecimalField(
-        max_digits=9, decimal_places=6, null=True, blank=True)
-    lng = models.DecimalField(
-        max_digits=9, decimal_places=6, null=True, blank=True)
-    city = models.ForeignKey(City, on_delete=models.CASCADE)
-    state = models.ForeignKey(State, on_delete=models.CASCADE)
-    country = models.ForeignKey(Country, on_delete=models.CASCADE)
-    active = models.BooleanField(default=True)
-
-
 
     class Meta:
         unique_together = ("city", "state", "country")
