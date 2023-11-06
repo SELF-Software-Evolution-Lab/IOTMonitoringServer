@@ -10,7 +10,7 @@ import psycopg2
 
 class City(models.Model):
     name = models.CharField(max_length=50, unique=True, blank=False)
-    code = models.CharField(max_length=50, null=True)
+    code = models.CharField(max_length=50, blank=True)
 
     def str(self):
         return "{}".format(self.name)
@@ -31,7 +31,7 @@ class City2(models.Model):
 
 class State(models.Model):
     name = models.CharField(max_length=50, unique=False, blank=False)
-    code = models.CharField(max_length=50, null=True)
+    code = models.CharField(max_length=50, blank=True)
 
     def str(self):
         return "{}".format(self.name)
@@ -39,7 +39,7 @@ class State(models.Model):
 
 class Country(models.Model):
     name = models.CharField(max_length=50, unique=False, blank=False)
-    code = models.CharField(max_length=50, null=True)
+    code = models.CharField(max_length=50, blank=True)
 
     def str(self):
         return "{}".format(self.name)
