@@ -7,31 +7,26 @@ from django.contrib.postgres.fields import ArrayField
 from typing import Any, MutableMapping, Optional
 import psycopg2
 
-
 class City(models.Model):
     name = models.CharField(max_length=50, unique=True, blank=False)
-    code = models.CharField(max_length=50, null=True)
+    code = models.CharField(max_length=50, blank=True)
 
     def str(self):
         return "{}".format(self.name)
-
 
 class State(models.Model):
     name = models.CharField(max_length=50, unique=False, blank=False)
-    code = models.CharField(max_length=50, null=True)
+    code = models.CharField(max_length=50, blank=True)
 
     def str(self):
         return "{}".format(self.name)
-
 
 class Country(models.Model):
     name = models.CharField(max_length=50, unique=False, blank=False)
-    code = models.CharField(max_length=50, null=True)
+    code = models.CharField(max_length=50, blank=True)
 
     def str(self):
         return "{}".format(self.name)
-
-
 class Location(models.Model):
     description = models.CharField(max_length=200, blank=True)
     lat = models.DecimalField(
@@ -42,13 +37,11 @@ class Location(models.Model):
     state = models.ForeignKey(State, on_delete=models.CASCADE)
     country = models.ForeignKey(Country, on_delete=models.CASCADE)
     active = models.BooleanField(default=True)
-
     class Meta:
         unique_together = ("city", "state", "country")
 
     def str(self):
         return "{} {} {}".format(self.city.name, self.state.name, self.country.name)
-
 
 class Measurement(models.Model):
     name = models.CharField(max_length=50, blank=False)
@@ -119,7 +112,7 @@ class Data(models.Model):
     def timestamp_now():
         now = timezone.now()
         return int(now.timestamp() * 1000000)
-
+    
     time = models.BigIntegerField(default=timestamp_now, primary_key=True)
     base_time = models.DateTimeField(default=base_time_now)
     station = models.ForeignKey(Station, on_delete=models.CASCADE)
