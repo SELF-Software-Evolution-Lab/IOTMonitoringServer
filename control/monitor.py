@@ -12,10 +12,7 @@ client = mqtt.Client(settings.MQTT_USER_PUB)
 
 
 def analyze_data():
-    # Consulta todos los datos de la última hora, los agrupa por estación y variable
-    # Compara el promedio con los valores límite que están en la base de datos para esa variable.
-    # Si el promedio se excede de los límites, se envia un mensaje de alerta.
-
+    
     print("Calculando alertas...")
 
     data = Data.objects.filter(
