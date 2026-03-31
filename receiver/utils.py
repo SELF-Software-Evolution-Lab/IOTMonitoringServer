@@ -110,13 +110,15 @@ def create_data(
     value: float,
     station: Station,
     measure: Measurement,
-    time: datetime = datetime.now(),
+    time: datetime = None,
 ):
     '''
     Crea un nuevo dato con valor {value}, estación {station} y variable {measure}.
     Hace las operaciones necesarias para insertarlo en la base de datos con el patrón Blob.
     Calcula promedio, mínimo y máximo de los datos anteriores.
     '''
+    if time is None:
+        time = timezone.now()
 
     base_time = datetime(time.year, time.month, time.day,
                          time.hour, tzinfo=time.tzinfo)

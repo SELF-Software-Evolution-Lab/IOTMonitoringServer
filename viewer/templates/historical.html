@@ -27,13 +27,17 @@
       Descarga los datos de las estaciones
       de monitoreo.
     </p>
+    <label for="daterange-btn">Selecciona un rango de fechas</label>
+    <div class="mt-2 mb-2">
+      <span id="daterange-label">Última semana (por defecto)</span>
+      <button type="button" class="btn btn-outline-secondary btn-sm ml-2" name="daterange" id="daterange-btn">Cambiar fechas</button>
+    </div>
     <div class="d-flex flex-row align-items-center">
       <a
         id="downloadAnchor"
         type="button"
-        class="btn btn-primary"
-        href="/static/data/datos-historicos-iot.csv"
-        download
+        class="btn btn-primary download"
+        href="#"
         data-download="datos-historicos-iot.csv"
         >Descargar datos</a
       >
@@ -102,50 +106,55 @@
       $('button[name="daterange"]').click();
     }
 
+    function setDownloadUrl(start, end) {
+      var startTime = start ? +start : null;
+      var endTime = end ? +end : null;
+      var url = '/historic/data/';
+      if (startTime != null && endTime != null) {
+        url += '?from=' + startTime + '&to=' + endTime;
+      }
+      $("#downloadAnchor").attr("href", url).attr("data-url", url);
+    }
+
     $(function () {
+      setDownloadUrl(null, null);
       $('button[name="daterange"]').daterangepicker(
         {
           opens: "right",
+          startDate: moment().subtract(6, 'days'),
+          endDate: moment()
         },
         function (start, end, label) {
-          let startTime = +start;
-          let endTime = +end;
-
           $("#daterange-label").text(
             start.format("DD/MM/YYYY") + " - " + end.format("DD/MM/YYYY")
           );
-
-          $("#downloadAnchor")
-            .attr("name", `/historical/data?from=${startTime}&to=${endTime}`)
-            .removeClass("disabled");
+          setDownloadUrl(start, end);
+          $("#downloadAnchor").removeClass("disabled");
         }
       );
     });
   </script>
   <script type="application/javascript">
-    $(".download").on("click", function () {
-      // show the loading indicator
+    $("#downloadAnchor").on("click", function (e) {
+      e.preventDefault();
+      var url = $(this).attr("data-url") || $(this).attr("href") || "/historic/data/";
+      if ($(this).hasClass("disabled")) return;
       $(".indicator").show();
       $(".loader").attr("hidden", false);
-      $("#downloadAnchor").addClass("disabled");
-
-      // get the filename
-      var fname = $(this).attr("data-download");
-      var url = $(this).attr("name");
+      $(this).addClass("disabled");
 
       $.get(url, function (file) {
-        var dataURI = "data:text/csv;charset=utf-8," + file;
-        $("#csvLink")
-          .attr({
-            download: fname,
-            href: dataURI,
-          })[0]
-          .click();
-
-        // hide the loading indicator
+        var dataURI = "data:text/csv;charset=utf-8," + encodeURIComponent(file);
+        var fname = $("#downloadAnchor").attr("data-download");
+        $("#csvLink").attr({ download: fname, href: dataURI })[0].click();
         $(".indicator").hide();
         $(".loader").attr("hidden", true);
         $("#downloadAnchor").removeClass("disabled");
+      }).fail(function() {
+        $(".indicator").hide();
+        $(".loader").attr("hidden", true);
+        $("#downloadAnchor").removeClass("disabled");
+        alert("Error al generar el archivo. Prueba otro rango de fechas.");
       });
     });
   </script>

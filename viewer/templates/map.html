@@ -49,7 +49,7 @@
               class="float-right my-3 my-md-0"
               aria-label="Seleccionar variable"
               aria-placeholder="Variable"
-              onchange="this.options[this.selectedIndex].value && (window.location = '/rema/' + this.options[this.selectedIndex].value);"
+              onchange="var v=this.options[this.selectedIndex].value; if(v) { var url='/map/?measure='+encodeURIComponent(v); var params=new URLSearchParams(window.location.search); if(params.get('from')) url+='&from='+params.get('from'); if(params.get('to')) url+='&to='+params.get('to'); window.location=url; }"
             >
               {% for measure in measurements %}
               <option value="{{measure.name}}"

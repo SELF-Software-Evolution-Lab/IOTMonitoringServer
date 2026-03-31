@@ -2,6 +2,7 @@ from datetime import datetime
 import traceback
 from django.contrib.auth.models import User
 from receiver.models import Measurement, Station, Data, Location, City, State, Country
+from receiver.utils import get_coordinates
 from django.db.models import Avg, Max, Min, Sum
 import dateutil.relativedelta
 
@@ -9,6 +10,28 @@ import dateutil.relativedelta
 def get_measurements():
     measurements = Measurement.objects.all()
     return list(measurements)
+
+
+def get_data_user_for_location(city, state, country, request_user):
+    """
+    Devuelve el username a usar para get_last_week_data en esa ubicación.
+    Si el usuario tiene estación ahí, es él; si no pero es superuser, el dueño de cualquier estación ahí.
+    """
+    try:
+        cityO = City.objects.get(name=city)
+        stateO = State.objects.get(name=state)
+        countryO = Country.objects.get(name=country)
+        location = Location.objects.get(city=cityO, state=stateO, country=countryO)
+    except Exception:
+        return request_user.username
+    station = Station.objects.filter(user=request_user, location=location).first()
+    if station:
+        return request_user.username
+    if request_user.is_superuser:
+        any_station = Station.objects.filter(location=location, active=True).select_related('user').first()
+        if any_station:
+            return any_station.user.username
+    return request_user.username
 
 
 def get_last_week_data(user, city, state, country):
@@ -122,18 +145,26 @@ El template espera un contexto de este tipo:
             user = User.objects.get(username=userParam)
             print("CONTEXT: getting user db: ", user)
             stations = Station.objects.filter(user=user)
+            # Si el usuario no tiene estaciones pero es superuser, usar la primera estación disponible (ej. ironman)
+            if not stations.exists() and user.is_superuser:
+                first_station = Station.objects.filter(active=True).select_related('location').first()
+                if first_station:
+                    stations = Station.objects.filter(pk=first_station.pk)
             print("CONTEXT: getting stations db: ", stations)
-            station = stations[0] if len(stations) > 0 else None
+            station = stations.first()
             print("CONTEXT: getting first station: ", station)
             if station != None:
                 cityParam = station.location.city.name
                 stateParam = station.location.state.name
                 countryParam = station.location.country.name
+                data_user = station.user.username  # datos de quien tenga la estación (ej. ironman)
             else:
                 return context
+        else:
+            data_user = userParam
         print("CONTEXT: getting last week data and measurements")
         context["data"], context["measurements"] = get_last_week_data(
-            userParam, cityParam, stateParam, countryParam
+            data_user, cityParam, stateParam, countryParam
         )
         print(
             "CONTEXT: got last week data, now getting city, state, country: ",
@@ -195,6 +226,8 @@ def get_map_context(request):
 
     for location in locations:
         stations = Station.objects.filter(location=location)
+        if not selectedMeasure:
+            continue
         locationData = Data.objects.filter(
             station__in=stations, measurement__name=selectedMeasure.name, time__gte=start_ts, time__lte=end_ts,
         )
@@ -203,15 +236,30 @@ def get_map_context(request):
         minVal = locationData.aggregate(Min("min_value"))["min_value__min"]
         maxVal = locationData.aggregate(Max("max_value"))["max_value__max"]
         avgVal = locationData.aggregate(Avg("avg_value"))["avg_value__avg"]
+        lat = location.lat
+        lng = location.lng
+        if lat is None or lng is None:
+            try:
+                lat, lng = get_coordinates(
+                    location.city.name, location.state.name, location.country.name
+                )
+                if lat and lng:
+                    location.lat = lat
+                    location.lng = lng
+                    location.save()
+            except Exception:
+                pass
+        if lat is None or lng is None:
+            continue
         data.append(
             {
                 "name": f"{location.city.name}, {location.state.name}, {location.country.name}",
-                "lat": location.lat,
-                "lng": location.lng,
+                "lat": float(lat),
+                "lng": float(lng),
                 "population": stations.count(),
-                "min": minVal if minVal != None else 0,
-                "max": maxVal if maxVal != None else 0,
-                "avg": round(avgVal if avgVal != None else 0, 2),
+                "min": minVal if minVal is not None else 0,
+                "max": maxVal if maxVal is not None else 0,
+                "avg": round(float(avgVal) if avgVal is not None else 0, 2),
             }
         )
 

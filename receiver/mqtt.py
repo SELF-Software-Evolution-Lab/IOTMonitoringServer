@@ -1,35 +1,22 @@
-from datetime import datetime
 from . import utils
 import json
-import os
+from django.utils import timezone
 import ssl
 import paho.mqtt.client as mqtt
 from django.conf import settings
 
 
 def on_message(client: mqtt.Client, userdata, message: mqtt.MQTTMessage):
-    '''
+    """
     Función que se ejecuta cada que llega un mensaje al tópico.
-    Recibe el mensaje con formato:
-        {
-            "variable1": mediciónVariable1,
-            "variable2": mediciónVariable2
-        }
-    en un tópico con formato:
-        pais/estado/ciudad/usuario
-        ej: colombia/cundinamarca/cajica/ja.avelino
-    Si el tópico tiene la forma de:
-        pais/estado/ciudad/usuario/mensaje
-    se salta el procesamiento pues el mensaje es para el dispositivo de medición.
-    A partir de esos datos almacena la medición en el sistema.
-    '''
+    """
     try:
-        time = datetime.now()
+        time = timezone.now()
         payload = message.payload.decode("utf-8")
-        print("payload: " + payload)
+        print("Payload recibido:", payload)
+
         payloadJson = json.loads(payload)
-        country, state, city, user = utils.get_topic_data(
-            message.topic)
+        country, state, city, user = utils.get_topic_data(message.topic)
 
         user_obj = utils.get_user(user)
         location_obj = utils.get_or_create_location(city, state, country)
@@ -39,42 +26,55 @@ def on_message(client: mqtt.Client, userdata, message: mqtt.MQTTMessage):
             unit = utils.get_units(str(variable).lower())
             variable_obj = utils.get_or_create_measurement(variable, unit)
             sensor_obj = utils.get_or_create_station(user_obj, location_obj)
+
             utils.create_data(
-                float(payloadJson[measure]), sensor_obj, variable_obj, time)
+                float(payloadJson[measure]),
+                sensor_obj,
+                variable_obj,
+                time
+            )
 
     except Exception as e:
-        print('Ocurrió un error procesando el paquete MQTT', e)
+        print("❌ Error procesando mensaje MQTT:", e)
 
 
 def on_connect(client, userdata, flags, rc):
-    print("Suscribiendo al tópico: " + settings.TOPIC)
-    client.subscribe(settings.TOPIC)
-    print("Servicio de recepcion de datos iniciado")
+    if rc == 0:
+        print("✅ Conectado al broker")
+        print("Suscribiendo al tópico:", settings.TOPIC)
+        client.subscribe(settings.TOPIC)
+        print("Servicio de recepción de datos iniciado")
+    else:
+        print("❌ Error de conexión:", mqtt.connack_string(rc))
 
 
-def on_disconnect(client: mqtt.Client, userdata, rc):
-    '''
-    Función que se ejecuta cuando se desconecta del broker.
-    Intenta reconectar al bróker.
-    '''
-    print("Desconectado con mensaje:" + str(mqtt.connack_string(rc)))
-    print("Reconectando...")
-    client.reconnect()
+def on_disconnect(client, userdata, rc):
+    print("⚠️ Desconectado:", mqtt.connack_string(rc))
+    print("Intentando reconectar...")
 
 
-print("Iniciando cliente MQTT...", settings.MQTT_HOST, settings.MQTT_PORT)
+print("🚀 Iniciando cliente MQTT...", settings.MQTT_HOST, settings.MQTT_PORT)
+
 try:
-    client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION1, settings.MQTT_USER)
+    # ✅ MQTT TCP normal (Mosquitto en 8082 sin websockets)
+    client = mqtt.Client(client_id=settings.MQTT_USER)
+
     client.on_connect = on_connect
     client.on_message = on_message
     client.on_disconnect = on_disconnect
 
     if settings.MQTT_USE_TLS:
-        client.tls_set(ca_certs=settings.CA_CRT_PATH,
-                       tls_version=ssl.PROTOCOL_TLSv1_2, cert_reqs=ssl.CERT_NONE)
+        client.tls_set(
+            ca_certs=settings.CA_CRT_PATH,
+            tls_version=ssl.PROTOCOL_TLSv1_2,
+            cert_reqs=ssl.CERT_NONE
+        )
 
     client.username_pw_set(settings.MQTT_USER, settings.MQTT_PASSWORD)
-    client.connect(settings.MQTT_HOST, settings.MQTT_PORT)
+    client.connect(settings.MQTT_HOST, settings.MQTT_PORT, keepalive=60)
+
+    # Loop bloqueante (mantiene conexión viva)
+    client.loop_forever()
 
 except Exception as e:
-    print('Ocurrió un error al conectar con el bróker MQTT:', e)
+    print("❌ Error conectando al broker MQTT:", e)
